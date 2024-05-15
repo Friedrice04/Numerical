@@ -14,6 +14,7 @@ def vandermonde(x, fx, degree):
     """
 
     v = np.vander(x[:degree+1], degree+1)
+    print(v)
     ans = np.linalg.solve(v, fx[:degree+1])
     return ans
 
@@ -28,27 +29,29 @@ def lagrangian(x, fx, degree):
     return sc.interpolate.lagrange(x[:degree+1], fx[:degree+1])
 
 
-def poly_newton_coefficient(x, y, degree):
+def newton_coefficient(x_data, y_data, degree):
     """
     x: list or np array contanining x data points
     y: list or np array contanining y data points
     """
 
-    x = np.copy(x[:degree+1])
-    a = np.copy(y[:degree+1])
-    for k in range(1, degree+1):
-        a[k:degree+1] = (a[k:degree+1] - a[k - 1])/(x[k:degree+1] - x[k - 1])
+    new_x = np.copy(x_data[:degree + 1])
+    new_y = np.copy(y_data[:degree + 1])
+    for i in range(1, degree+1):
+        enum = (new_y[i:degree+1] - new_y[i - 1])
+        denom = (new_x[i:degree + 1] - new_x[i - 1])
+        new_y[i:degree+1] = enum/denom
 
-    return a
+    return new_y
 
 
-def newton_polynomial(x_data, y_data, x):
+def newton_polynomial(x_data, y_data, degree, x):
     """
     x_data: data points at x
     y_data: data points at y
     x: evaluation point(s)
     """
-    a = poly_newton_coefficient(x_data, y_data)
+    a = newton_coefficient(x_data, y_data, degree)
     n = len(x_data) - 1  # Degree of polynomial
     p = a[n]
 
@@ -56,3 +59,7 @@ def newton_polynomial(x_data, y_data, x):
         p = a[n - k] + (x - x_data[n - k])*p
 
     return p
+
+
+def taylor(function, around, degree):
+    return sc.interpolate.approximate_taylor_polynomial(function, around, degree, 1)
